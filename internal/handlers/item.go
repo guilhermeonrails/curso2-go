@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"myapi/internal/models"
 	"myapi/internal/repositories"
 	"net/http"
@@ -18,7 +19,10 @@ func ListItems(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erro ao listar os itens", http.StatusNotFound)
 		return
 	}
-	json.NewEncoder(w).Encode(items)
+	err = json.NewEncoder(w).Encode(items)
+	if err != nil {
+		http.Error(w, "Erro ao codigicar o item", http.StatusInternalServerError)
+	}
 }
 
 // GetItem - Busca um item por ID (via rota: /item/{id})
@@ -42,7 +46,10 @@ func GetItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Item não encontrado", http.StatusNotFound)
 		return
 	}
-	json.NewEncoder(w).Encode(item)
+	err = json.NewEncoder(w).Encode(item)
+	if err != nil {
+		http.Error(w, "Erro ao codificar os itens", http.StatusInternalServerError)
+	}
 }
 
 // GetItemByCode - Busca um item pelo campo "codigo" (via rota: /item/codigo/{codigo})
@@ -61,7 +68,10 @@ func GetItemByCode(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Item não encontrado", http.StatusNotFound)
 		return
 	}
-	json.NewEncoder(w).Encode(item)
+	err = json.NewEncoder(w).Encode(item)
+	if err != nil {
+		http.Error(w, "Erro ao codificar os itens", http.StatusInternalServerError)
+	}
 }
 
 // CreateItem - Cria um novo item (envie JSON via POST)
@@ -79,7 +89,10 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erro ao criar o item", http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(createdItem)
+	err = json.NewEncoder(w).Encode(createdItem)
+	if err != nil {
+		http.Error(w, "Erro ao codificar o item criado", http.StatusInternalServerError)
+	}
 }
 
 // UpdateItem - Atualiza um item existente (envie JSON via PUT, com o campo id preenchido)
@@ -96,7 +109,11 @@ func UpdateItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erro ao atualizar o item", http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(item)
+
+	err := json.NewEncoder(w).Encode(item)
+	if err != nil {
+		http.Error(w, "Erro ao codificar os itens", http.StatusInternalServerError)
+	}
 }
 
 // DeleteItem - Deleta um item por ID (via rota: /item/{id})
@@ -119,5 +136,8 @@ func DeleteItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erro ao deletar o item", http.StatusInternalServerError)
 		return
 	}
-	w.Write([]byte("Item deletado com sucesso"))
+
+	if _, err := w.Write([]byte("Item deletado com sucesso")); err != nil {
+		log.Printf("Erro ao escrever a resposta: %v", err)
+	}
 }

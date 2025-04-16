@@ -20,5 +20,8 @@ func ConnectDatabase() {
 	}
 	DB = db
 
-	DB.AutoMigrate(&models.Item{})
+	err = DB.AutoMigrate(&models.Item{})
+	if err != nil {
+		log.Fatalf("Erro durante a migração: %v", err)
+	}
 }
