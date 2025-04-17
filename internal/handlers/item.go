@@ -86,7 +86,7 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 
 	err := validators.ValidateItem(&item)
 	if err != nil {
-		utils.RespondWithError(w, err.Error(), http.StatusBadRequest)
+		utils.RespondWithError(w, "Erro de validação: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -111,15 +111,22 @@ func UpdateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err := validators.ValidateItem(&item)
+	if err != nil {
+		utils.RespondWithError(w, "Erro de validação: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	repository := repositories.NewItemRepository()
 	if err := repository.Update(&item); err != nil {
 		utils.RespondWithError(w, "Erro ao atualizar o item", http.StatusInternalServerError)
 		return
 	}
 
-	err := json.NewEncoder(w).Encode(item)
+	err = json.NewEncoder(w).Encode(item)
 	if err != nil {
 		utils.RespondWithError(w, "Erro ao codificar os itens", http.StatusInternalServerError)
+		return
 	}
 }
 

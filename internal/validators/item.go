@@ -10,12 +10,12 @@ func ValidateItem(item *models.Item) error {
 		return errors.New("preço deve ser maior que zero")
 	}
 
-	if len(item.Codigo) != 6 {
-		return errors.New("o código deve ter 6 caracteres")
+	if item.Quantidade <= 0 {
+		return errors.New("quantidade deve ser maior que zero")
 	}
 
-	if item.Quantidade < 0 {
-		return errors.New("quantidade não pode ser negativa")
+	if len(item.Codigo) != 6 {
+		return errors.New("o código precisa ter 6 caracteres")
 	}
 
 	return nil
