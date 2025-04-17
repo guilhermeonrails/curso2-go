@@ -2,10 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"myapi/internal/models"
 	"myapi/internal/repositories"
+	"myapi/internal/services"
 	"myapi/internal/utils"
-	"myapi/internal/validators"
 	"net/http"
 	"strconv"
 
@@ -77,21 +76,14 @@ func GetItemByCode(w http.ResponseWriter, r *http.Request) {
 
 // CreateItem - Cria um novo item (envie JSON via POST)
 func CreateItem(w http.ResponseWriter, r *http.Request) {
-	var item models.Item
-
-	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
-		utils.RespondWithError(w, "Erro ao decodificar o item", http.StatusBadRequest)
-		return
-	}
-
-	err := validators.ValidateItem(&item)
+	item, err := services.DecodeAndValidateItem(r)
 	if err != nil {
-		utils.RespondWithError(w, "Erro de validação: "+err.Error(), http.StatusBadRequest)
+		utils.RespondWithError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	repository := repositories.NewItemRepository()
-	createdItem, err := repository.Create(&item)
+	createdItem, err := repository.Create(item)
 	if err != nil {
 		utils.RespondWithError(w, "Erro ao criar o item", http.StatusInternalServerError)
 		return
@@ -104,21 +96,14 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 
 // UpdateItem - Atualiza um item existente (envie JSON via PUT, com o campo id preenchido)
 func UpdateItem(w http.ResponseWriter, r *http.Request) {
-	var item models.Item
-
-	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
-		utils.RespondWithError(w, "Erro ao decodificar o item", http.StatusBadRequest)
-		return
-	}
-
-	err := validators.ValidateItem(&item)
+	item, err := services.DecodeAndValidateItem(r)
 	if err != nil {
-		utils.RespondWithError(w, "Erro de validação: "+err.Error(), http.StatusBadRequest)
+		utils.RespondWithError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	repository := repositories.NewItemRepository()
-	if err := repository.Update(&item); err != nil {
+	if err := repository.Update(item); err != nil {
 		utils.RespondWithError(w, "Erro ao atualizar o item", http.StatusInternalServerError)
 		return
 	}

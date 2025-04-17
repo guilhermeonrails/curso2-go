@@ -1,14 +1,24 @@
 package services
 
 import (
+	"encoding/json"
 	"errors"
 	"myapi/internal/models"
+	"myapi/internal/validators"
+	"net/http"
 )
 
-// service para criar um item
-func CreateItem(item *models.Item) (*models.Item, error) {
-	if item.Nome == "" {
-		return nil, errors.New("nome do item não pode ser vazio")
+func DecodeAndValidateItem(r *http.Request) (*models.Item, error) {
+	var item models.Item
+
+	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
+		return nil, errors.New("Erro ao decodificar o item: " + err.Error())
 	}
-	return item, nil
+
+	err := validators.ValidateItem(&item)
+	if err != nil {
+		return nil, errors.New("Erro de validação: " + err.Error())
+	}
+
+	return &item, nil
 }
