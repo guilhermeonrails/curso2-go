@@ -5,6 +5,7 @@ import (
 	"myapi/internal/models"
 	"myapi/internal/repositories"
 	"myapi/internal/utils"
+	"myapi/internal/validators"
 	"net/http"
 	"strconv"
 
@@ -80,6 +81,12 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
 		utils.RespondWithError(w, "Erro ao decodificar o item", http.StatusBadRequest)
+		return
+	}
+
+	err := validators.ValidateItem(&item)
+	if err != nil {
+		utils.RespondWithError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
